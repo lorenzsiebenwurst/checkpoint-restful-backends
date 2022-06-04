@@ -1,6 +1,6 @@
 const suggestionsContainer = document.querySelector("#suggestions-container");
+const containerDiv = document.querySelector("#containerDiv");
 let profiles = [];
-const connectBtn = document.querySelector("#connectBtn");
 
 function loadProfiles() {
   fetch("https://dummy-apis.netlify.app/api/contact-suggestions?count=8")
@@ -13,15 +13,34 @@ function loadProfiles() {
 
 loadProfiles();
 
+suggestionsContainer.addEventListener("click", (e) => {
+  let pendingsNumber = 0;
+  if (e.target.innerText === "Connect") {
+    e.target.innerText = "Pending";
+    pendingsNumber++;
+    document.querySelector("#pending-invites").innerText =
+      pendingsNumber + " pending invitations";
+  } else {
+    e.target.innerText = "Connect";
+  }
+});
+
 function renderProfiles() {
   suggestionsContainer.innerHTML = "";
   profiles.forEach((profile) => {
     const containerDiv = document.createElement("div");
-    containerDiv.setAttribute("lastname", profile.name.last);
+    containerDiv.id = "containerDiv";
     containerDiv.classList.add("profile-container");
 
     const profileBackground = document.createElement("img");
-    profileBackground.setAttribute("src", " " + profile.backgroundImage + " ");
+    if (!profile.backgroundImage == "") {
+      profileBackground.setAttribute(
+        "src",
+        " " + profile.backgroundImage + " "
+      );
+    } else {
+      profileBackground.setAttribute("src", "/images/greyBackground.jpg");
+    }
     profileBackground.classList.add("profile-background");
 
     const profileRemoveButton = document.createElement("button");
@@ -46,7 +65,7 @@ function renderProfiles() {
 
     const connectBtn = document.createElement("button");
     connectBtn.innerText = "Connect";
-    connectBtn.setAttribute("id", "connectBtn");
+    connectBtn.id = "connectBtn";
     connectBtn.classList.add("profile-connect-button");
 
     containerDiv.appendChild(profileBackground);
