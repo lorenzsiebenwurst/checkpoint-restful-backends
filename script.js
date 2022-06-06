@@ -1,9 +1,18 @@
 const suggestionsContainer = document.querySelector("#suggestions-container");
 const containerDiv = document.querySelector("#containerDiv");
 let profiles = [];
+let pendingsNumber = 0;
 
-function loadProfiles() {
-  fetch("https://dummy-apis.netlify.app/api/contact-suggestions?count=8")
+loadProfiles(8);
+
+suggestionsContainer.addEventListener("click", (e) => connectWithProfile(e));
+suggestionsContainer.addEventListener("click", (e) => removeProfile(e));
+
+function loadProfiles(numberOfProfiles) {
+  fetch(
+    "https://dummy-apis.netlify.app/api/contact-suggestions?count=" +
+      numberOfProfiles
+  )
     .then((res) => res.json())
     .then((profilesFromApi) => {
       profiles = profilesFromApi;
@@ -11,25 +20,13 @@ function loadProfiles() {
     });
 }
 
-loadProfiles();
-
-suggestionsContainer.addEventListener("click", (e) => {
-  let pendingsNumber = 0;
-  if (e.target.innerText === "Connect") {
-    e.target.innerText = "Pending";
-    pendingsNumber++;
-    document.querySelector("#pending-invites").innerText =
-      pendingsNumber + " pending invitations";
-  } else {
-    e.target.innerText = "Connect";
-  }
-});
-
 function renderProfiles() {
+  let profileId = -1;
   suggestionsContainer.innerHTML = "";
   profiles.forEach((profile) => {
+    profileId++;
     const containerDiv = document.createElement("div");
-    containerDiv.id = "containerDiv";
+    containerDiv.id = profileId;
     containerDiv.classList.add("profile-container");
 
     const profileBackground = document.createElement("img");
@@ -78,4 +75,30 @@ function renderProfiles() {
 
     suggestionsContainer.appendChild(containerDiv);
   });
+}
+
+function connectWithProfile(e) {
+  const pendingsText = document.querySelector("#pending-invites");
+
+  if (e.target.innerText === "Connect") {
+    e.target.innerText = "Pending";
+    pendingsNumber++;
+  } else if (e.target.innerText === "Pending") {
+    e.target.innerText = "Connect";
+    pendingsNumber--;
+  }
+  if (pendingsNumber > 1) {
+    pendingsText.innerText = pendingsNumber + " pending invitations";
+  } else if (pendingsNumber === 1) {
+    pendingsText.innerText = pendingsNumber + " pending invitation";
+  } else {
+    pendingsText.innerText = "No pending invitations";
+  }
+}
+
+function removeProfile(e) {
+  if (e.target.classList == "profile-remove-btn") {
+    console.log(profiles[e.path[1].id]);
+    console.log(profiles.filter((profile) => profile.id !== e.path[1].id));
+  }
 }
