@@ -98,7 +98,15 @@ function connectWithProfile(e) {
 
 function removeProfile(e) {
   if (e.target.classList == "profile-remove-btn") {
-    console.log(profiles[e.path[1].id]);
-    console.log(profiles.filter((profile) => profile.id !== e.path[1].id));
+    profiles = profiles.filter((profile) => profile != profiles[e.path[1].id]);
+    fetch("https://dummy-apis.netlify.app/api/contact-suggestions?count=1")
+      .then((res) => res.json())
+      .then((profileFromApi) => {
+        profiles.push(profileFromApi[0]);
+      });
+
+    setTimeout(() => {
+      renderProfiles();
+    }, 1000);
   }
 }
